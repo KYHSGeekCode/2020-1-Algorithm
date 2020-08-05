@@ -1,0 +1,184 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{kotex}
+\usepackage{lipsum}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{float}
+\usepackage{amsmath}
+
+\title{알고리즘 H/W \#1 \\
+\large 수행시간}
+\date{}
+\author{
+  2019-13674\\
+  양현서 \\
+  바이오시스템소재학부\\
+}
+\lstset{
+    language=C, %% Troque para PHP, C, Java, etc... bash é o padrão
+    basicstyle=\ttfamily\small,
+    numberstyle=\footnotesize,
+    numbers=left,
+    frame=single,
+    tabsize=2,
+    title=\lstname,
+    escapeinside={\%*}{*)},
+    breaklines=true,
+    breakatwhitespace=true,
+    framextopmargin=2pt,
+    framexbottommargin=2pt,
+    extendedchars=false,
+    inputencoding=utf8
+}
+
+\begin{document}
+\maketitle
+
+
+\section{Asymptotic running time을 구하고 과정을 밝히시오}
+
+\subsection{$T(n) = 4T(n/4)+ b$  ($b$ : a constant)}
+마스터 정리에서 a = 4, b = 4, f(n) = (상수) \\
+$n^{\log_44} = n$이고 f(n)이 상수이므로
+$T(n) = \Theta(n)$
+
+\subsection{$T(n) = 3T(n/3)+ n \log n$}
+마스터 정리에서 a = 3, b = 3, $f(n) = n \log n$ \\
+$n^{\log_33} = n$이고 $n \in O(f(n))$ 이지만 $f(n)$이 $n$을 충분히 압도하지 못하므로 마스터 정리를 사용할 수 없다. 그러므로 $T(n) = \Theta(n \log^2 n)$
+
+\subsection{$T(n) = 5T(n/5)+ 3n$}
+마스터 정리에서 a = 5, b = 5, $f(n) = 3n$ \\
+$n^{\log_55} = n$이고 $n \in \Theta(f(n))$ 이므로
+$T(n) = \Theta(n \log n)$
+
+\subsection{$T(n) = T(n/4) + T(3n/4) + \Theta(n)$}
+% \begin{align*}
+% T(n) &= T(n/4) + T(3n/4) + \Theta(n) \\
+%      &= T(n/16) + 2T(3n/16) + T(9n/16) + \Theta(n/4) + \Theta(3n/4) + \Theta(n) \\
+%      &= T(n/64) + 3T(3n/64) + 3T(9n/64) + T(27n/64) + \Theta(n) \\ 
+%      &= ... \\
+%      &=  T(n/4^n) + 
+% \end{align*}
+충분히 큰 $n$에 대하여 $T(n) \le cn\log n$인 양의 실수 $c$가 존재한다고 가정하자. $n$이 충분히 클 때
+\begin{align*}
+    T(n) &\le T(n/4) + T(3n/4) + \Theta(n) \\
+         &\le \frac{cn}{4}\log(n/4) + \frac{3cn}{4}\log(3n/4) + \Theta(n) \\
+         &=\frac{cn}{4}(\log n- \log 4 + 3 \log 3 + 3 \log n - 3\log 4)+ \Theta(n) \\
+         &=cn\log n - \frac{cn}{4} \log \frac{3^3}{4^4} + \Theta(n) \\
+         &\le cn \log n 
+\end{align*}
+를 만족하게 하는 상수 $c$가 존재한다. 따라서 $T(n) = O(n\log n)$이다.
+% $\Theta(n \log n)$
+\subsection{$T(n) = 3T(n/3 + 9)+ n$}
+% \begin{align*}
+% T(n) &= 3T(n/3 + 9) + n \\
+%      &= 3\left{n/9+3+9} +n \\
+%      &= T(n/64) + 3T(3n/64) + 3T(9n/64) + T(27n/64) + \Theta(n) \\ 
+%      &= ... \\
+%      &=  T(n/4^n) + 
+% \end{align*}
+충분히 큰 $n$에 대하여 $T(n) \le cn\log n$인 양의 실수 $c$가 존재한다고 가정하자. $n$이 충분히 클 때
+\begin{align*}
+    T(n) &\le 3T(n/3 + 9) + n \\
+         &\le 3c(n/3+9)\log(n/3+9)+ n \\
+         &= cn\log(n/3+9) + 27c\log(n/3+9) + n \\ 
+         &\le cn\log(2n/3) + 27c\log(2n/3) + n \\
+         &= cn\log n + cn(\log2 - \log 3) + 27c\log(2n/3) + n\\
+         &= cn \log n + n(c\log 2 - c\log 3 + 1) + 27c \log (2n/3) \\
+         & \le cn log n
+\end{align*}
+를 만족하게 하는 상수 $c$가 존재한다. 따라서 $T(n) = O(n\log n)$이다.
+
+
+\section{다음 알고리즘의 수행시간을 구하라.}
+\begin{lstlisting}
+sample(A[], p, r)
+{
+    if(r-p <=1) return 1;
+    sum = 0;
+    for i = p to r
+        sum = sum + A[i];
+    q = \ceil{(r-p+1)/4};
+    tmp = sum + sample(A, p, p+q-1) + sample(A, p+2q, r);
+    return tmp; 
+}
+\end{lstlisting}
+sample에 들어오는 p, r에 대해 r-p+1=n이라 하자.
+$$
+T(n) = \left\{\begin{array}{lr}
+    1, &  t = 1\\
+    T(n/4)+ T(n/2)+n, &  t > 1
+    \end{array}\right\}
+$$
+% $$T(n) =
+% \begin{cases}
+% \Theta(1) \text{if $n = 1$} \\
+% 2T(n/4)+n \text{if $n > 1$}
+% \end{cases}$$
+충분히 큰 $n$에 대하여 $T(n) \le cn\log n$인 양의 실수 $c$가 존재한다고 가정하자. $T(2) \le c\log 2$인 $c$가 존재한다. 또한 $n$이 충분히 클 때
+\begin{align*}
+    T(n) &\le T(n/4) + T(n/2) + n \\
+         &\le \frac{cn}{4}\log(n/4) + \frac{cn}{2}\log(n/2) + n \\
+         &= \frac{3cn}{4}\log n - cn \log 2 + n \\ 
+         &\le cn \log n 
+\end{align*}
+를 만족하게 하는 상수 $c$가 존재한다. 따라서 $T(n) = O(n\log n)$이다.
+
+\section{아래 알고리즘 test(n)의 수행 시간의 upper bound를 asymptotic notation으로 나타내어라. n은 양의 정수다.}
+\begin{lstlisting}
+int test(n)
+{
+    if(n <=50) then return n;
+    else return (test(n/3+5)+test(2n/3+7)); 
+}
+\end{lstlisting}
+
+$
+T(n) = \left\{\begin{array}{lr}
+    \Theta(1), &  n \le 50\\
+    T(\frac n3 + 5) + T(\frac{2n}3+7), &  n > 50
+    \end{array}\right\}
+$
+
+충분히 큰 $n$에 대하여 $T(n) \le cn\log n$인 양의 실수 $c$가 존재한다고 가정하자. $n$이 충분히 클 때
+\begin{align*}
+    T(n) &\le T(n/3 + 5) + T(2n/3+7) \\
+         &\le c(n/3+5)\log(n/3+5)+ c(2n/3+7)\log(2n/3+7)  \\
+         &= \frac{cn}{3}\log(n/3+5) + \frac{2cn}{3}\log(2n/3+7) + 5c\log(n/3+5) + 7c\log(2n/3+7) \\ 
+         &\le \frac{cn}{3}\log(2n/3) + \frac{2cn}{3}\log(n) + 5c\log(n/3+5) + 7c\log(2n/3+7) \\
+         &=\frac{cn}{3}(\log2 + \log n - \log 3 +2 log n) + 5c\log(n/3+5) + 7c\log(2n/3+7)\\
+         &=\frac{cn}{3}(3\log n - \log \frac{3}{2}) + 5c\log(n/3+5) + 7c\log(2n/3+7) \\
+         &=cn\log n - \frac{cn}{3}\log \frac{3}{2} + 5c\log(n/3+5) + 7c\log(2n/3+7) \\
+         & \le cn log n
+\end{align*}
+는 상수 $c$에 관계 없이 성립한다. ($n$이 충분히 크면 $cn \log n$ 뒤의 항이 음수가 된다.) 따라서 $T(n) = O(n\log n)$이다.
+
+\section{Selection Sort 알고리즘이 제대로 sorting한다는 것을 수학적 귀납법으로 증명하여라.}
+크기 $n$인 리스트 $A_n=(a_1, a_2, \cdots, a_n)$에 대해 selection sort를 적용한다 하자.
+\begin{enumerate}
+	\item $n=1$에 대해 리스트 $A_n$은 이미 정렬되어 있다. 
+	\item $n=k$에 대해 selection sort를 시도하면 $a_k$은 $A$에서 가장 큰 원소가 된다. 즉 제 위치에 최댓값이 들어간다. 나머지 $a_1, a_2, \cdots, a_{k-1}$은 아직 정렬되어 있는지 모른다. 그러나 모두 $a_k$보다는 작거나 같다. 
+	\item $A_{k-1}=(a_1, a_2, \cdots, a_{k-1})$ 에 대해 selection sort를 시행한다. 2에 의해, 만약 $A_{k-1}$에 대해 selection sort가 제대로 sorting한다면 $A_k$에 대해서도 selection sort가 제대로 sorting하는 것이다.
+	\item 1에 의해, $n=1$일때 selection sort가 제대로 sorting하는 것이므로 2, 3에 의해 selection sorting은 수학적 귀납법에 의해 $n=k-1$, $n=k$ 일 때도 제대로 sorting한다.
+	\item 그러므로 selection sort는 제대로 sorting한다.   
+\end{enumerate}
+\section{Mergesort에서 둘로 나누는 대신 16개로 나누어도 sorting은 된다. 즉, 최상위 레벨에서 mergesort를 16번 부른 다음 merge를 한다. 이 경우의 알고리즘을 기술하고(상식적인 선에서 기술. 너무 자세할 필요 없음) complexity를 분석하라. Heap을 이용해서 merge 부분을 효율적으로 하는 방법도 기술에 포함시킬 것}
+\begin{enumerate}
+    \item 16개로 배열을 분할한다.
+    \item 각각의 배열에 대해 mergesort를 호출한다.
+    \item 각각의 배열의 요소들을 앞에서부터 각각 하나씩 힙에 추가하면, 16개 배열들 중에서 가장 작은 요소가 맨 위로 가게 하는 힙을 만들 수 있다.
+    \item 힙의 맨 위에 있는 요소를 제거하여 결과배열의 맨 앞에 추가하고, 그 힙의 빈자리에 그 요소가 있던 배열에서 방금 제거한 요소의 다음 요소를 추가한다.
+    \item 힙의 규칙을 만족하도록 최상위 요소를 움직인다.
+    \item merge가 완료될 때까지 반복한다.
+\end{enumerate}
+여기서
+$
+T(n) = \left\{\begin{array}{lr}
+    1, &  n = 1\\
+    16T(\frac n{16})+ n\log16, &  n > 1
+    \end{array}\right\}
+$
+마스터 정리에 의해 $T(n) = \Theta(n \log n)$이다.
+\end{document}

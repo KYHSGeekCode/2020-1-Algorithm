@@ -1,0 +1,132 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
+
+/*
+   1. 아래와 같은 명령어를 입력하면 컴파일이 이루어져야 하며, Solution3 라는 이름의 클래스가 생성되어야 채점이 이루어집니다.
+       javac Solution3.java -encoding UTF8
+
+   2. 컴파일 후 아래와 같은 명령어를 입력했을 때 여러분의 프로그램이 정상적으로 출력파일 output3.txt 를 생성시켜야 채점이 이루어집니다.
+       java Solution3
+
+   - 제출하시는 소스코드의 인코딩이 UTF8 이어야 함에 유의 바랍니다.
+   - 수행시간 측정을 위해 다음과 같이 time 명령어를 사용할 수 있습니다.
+       time java Solution3
+   - 일정 시간 초과시 프로그램을 강제 종료 시키기 위해 다음과 같이 timeout 명령어를 사용할 수 있습니다.
+       timeout 0.5 java Solution3   // 0.5초 수행
+       timeout 1 java Solution3     // 1초 수행
+ */
+
+/*
+    이 알고리즘의 시간 복잡도
+    distance[i][j][0]의 초기값 설정하는 부분: Theta(N^2) == Theta(E)
+    distnace[i][j][k+1] 채우는 부분: Theta(N^3)
+    Answer를 위해 합치는 부분: Theta(N^2)
+    총 복잡도: Theta(N^3)
+ */
+
+class Solution3 {
+    static final int MAX_N = 200;
+    static final int MAX_E = 10000;
+
+    static int N, E;
+    static final int[] U = new int[MAX_E];
+    static final int[] V = new int[MAX_E];
+    static final int[] W = new int[MAX_E];
+    static int Answer;
+
+    static final int[][][] distance = new int[MAX_N][MAX_N][MAX_N + 1];
+
+    public static void main(String[] args) throws Exception {
+		/*
+		   동일 폴더 내의 input3.txt 로부터 데이터를 읽어옵니다.
+		   또한 동일 폴더 내의 output3.txt 로 정답을 출력합니다.
+		 */
+        BufferedReader br = new BufferedReader(new FileReader("input3.txt"));
+        StringTokenizer stk;
+        PrintWriter pw = new PrintWriter("output3.txt");
+
+		/*
+		   10개의 테스트 케이스가 주어지므로, 각각을 처리합니다.
+		 */
+        for (int test_case = 1; test_case <= 10; test_case++) {
+			/*
+			   각 테스트 케이스를 표준 입력에서 읽어옵니다.
+			   먼저 정점의 개수와 간선의 개수를 각각 N, E에 읽어들입니다.
+			   그리고 각 i번째 간선의 양 끝점의 번호를 U[i], V[i]에 읽어들이고, i번째 간선의 가중치를 W[i]에 읽어들입니다. (0 ≤ i ≤ E-1, 1 ≤ U[i] ≤ N, 1 ≤ V[i] ≤ N)
+			 */
+            stk = new StringTokenizer(br.readLine());
+            N = Integer.parseInt(stk.nextToken());
+            E = Integer.parseInt(stk.nextToken());
+            stk = new StringTokenizer(br.readLine());
+            for (int i = 0; i < E; i++) {
+                U[i] = Integer.parseInt(stk.nextToken());
+                V[i] = Integer.parseInt(stk.nextToken());
+                W[i] = Integer.parseInt(stk.nextToken());
+            }
+
+
+            /////////////////////////////////////////////////////////////////////////////////////////////
+			/*
+			   이 부분에서 여러분의 알고리즘이 수행됩니다.
+			   문제의 답을 계산하여 그 값을 Answer에 저장하는 것을 가정하였습니다.
+			 */
+            /////////////////////////////////////////////////////////////////////////////////////////////
+
+            //FLOYD-WARSHALL ALGORITHM
+            // O(N^2E)
+            // initialize start point
+
+            // O(N^2)
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+//                    if (i == j) {
+//                        distance[i][j][0] = 0;
+//                    } else {
+                    distance[i][j][0] = 20000; // 무한대
+//                    }
+                }
+                distance[i][i][0] = 0;
+            }
+            // O(E)
+            for (int e = 0; e < E; e++) {
+                int u = U[e] - 1;
+                int v = V[e] - 1;
+                distance[u][v][0] = W[e];
+            }
+            // O(N^3)
+            for (int k = 0; k < N; k++) {
+                for (int i = 0; i < N; i++) {
+                    for (int j = 0; j < N; j++) {
+                        final int dist1 = distance[i][j][k];
+                        final int dist2 = distance[i][k][k] + distance[k][j][k];
+                        distance[i][j][k + 1] = dist1 < dist2 ? dist1 : dist2;
+                    }
+                }
+            }
+
+            // O(N^2)
+            Answer = 0;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    Answer += distance[i][j][N];
+                }
+            }
+
+
+            // output3.txt로 답안을 출력합니다.
+            pw.println("#".concat(Integer.toString(test_case)).concat(" ").concat(Integer.toString(Answer)));
+			/*
+			   아래 코드를 수행하지 않으면 여러분의 프로그램이 제한 시간 초과로 강제 종료 되었을 때,
+			   출력한 내용이 실제로 파일에 기록되지 않을 수 있습니다.
+			   따라서 안전을 위해 반드시 flush() 를 수행하시기 바랍니다.
+			 */
+            pw.flush();
+        }
+
+        br.close();
+        pw.close();
+    }
+}
+
